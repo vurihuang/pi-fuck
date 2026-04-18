@@ -1,7 +1,6 @@
 {
   "name": "pi-fuck",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
   "description": "Pi extension that turns /fuck into an automatic continuation message.",
   "main": "./fuck.js",
