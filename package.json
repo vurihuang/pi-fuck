@@ -1,0 +1,16 @@
+{
+  "name": "pi-fuck",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Pi extension that turns /fuck into an automatic continuation message.",
+  "main": "./fuck.js",
+  "keywords": ["pi-package"],
+  "pi": {
+    "extensions": ["./fuck.js"]
+  },
+  "peerDependencies": {
+    "@mariozechner/pi-ai": "*",
+    "@mariozechner/pi-coding-agent": "*"
+  }
+}
