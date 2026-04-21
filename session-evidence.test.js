@@ -46,7 +46,7 @@ test("buildSessionEvidence keeps older task-bearing user intent when the latest 
 
 test("buildSessionEvidence ignores late meta handoff requests when older task-bearing intent still exists", () => {
   const messages = [
-    { role: "user", content: [{ type: "text", text: "Refactor /fuck so the current session stages a prompt before /new and the next session consumes it exactly once." }] },
+    { role: "user", content: [{ type: "text", text: "Refactor /fxxk so the current session stages a prompt before /new and the next session consumes it exactly once." }] },
     { role: "assistant", content: [{ type: "text", text: "I will split staging from consumption." }] },
     { role: "user", content: [{ type: "text", text: "Give me a prompt I can paste into a new session once this is done." }] },
   ];
@@ -55,9 +55,9 @@ test("buildSessionEvidence ignores late meta handoff requests when older task-be
 
   assert.equal(
     evidence.primaryUserMessage,
-    "Refactor /fuck so the current session stages a prompt before /new and the next session consumes it exactly once.",
+    "Refactor /fxxk so the current session stages a prompt before /new and the next session consumes it exactly once.",
   );
   assert.deepEqual(evidence.taskUserMessages, [
-    "Refactor /fuck so the current session stages a prompt before /new and the next session consumes it exactly once.",
+    "Refactor /fxxk so the current session stages a prompt before /new and the next session consumes it exactly once.",
   ]);
 });

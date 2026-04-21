@@ -1,18 +1,18 @@
 import { randomUUID } from "node:crypto";
 
-export const FUCK_STATE_CUSTOM_TYPE = "fuck-state";
+export const FXXK_STATE_CUSTOM_TYPE = "fxxk-state";
 const SOURCE_SESSION_LINK_KIND = "source-session-link";
 const CLEAR_SOURCE_SESSION_LINK_KIND = "clear-source-session-link";
 const STAGED_PROMPT_KIND = "staged-prompt";
 const SUPERSEDED_PROMPT_KIND = "superseded-prompt";
 const CONSUMED_PROMPT_KIND = "consumed-prompt";
 
-function isFuckStateEntry(entry) {
-  return entry?.type === "custom" && entry.customType === FUCK_STATE_CUSTOM_TYPE && entry.data && typeof entry.data === "object";
+function isFxxkStateEntry(entry) {
+  return entry?.type === "custom" && entry.customType === FXXK_STATE_CUSTOM_TYPE && entry.data && typeof entry.data === "object";
 }
 
 function getStateData(entry) {
-  return isFuckStateEntry(entry) ? entry.data : null;
+  return isFxxkStateEntry(entry) ? entry.data : null;
 }
 
 export function createSourceSessionLink(sourceSessionFile) {

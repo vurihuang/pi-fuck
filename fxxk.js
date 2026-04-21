@@ -3,9 +3,9 @@ import { readFileSync } from "node:fs";
 import { complete } from "@mariozechner/pi-ai";
 import { BorderedLoader, SessionManager } from "@mariozechner/pi-coding-agent";
 
-import { buildHandoffPromptFromMessages, decideFuckAction } from "./fuck-core.js";
+import { buildHandoffPromptFromMessages, decideFxxkAction } from "./fxxk-core.js";
 import {
-  FUCK_STATE_CUSTOM_TYPE,
+  FXXK_STATE_CUSTOM_TYPE,
   createConsumedPrompt,
   createSourceSessionLink,
   createSourceSessionLinkClear,
@@ -163,7 +163,7 @@ async function completePromptFromEvidence(ctx, evidenceBlock, signal) {
   }
 
   console.warn(
-    "/fuck falling back to deterministic continuation after two empty model responses:",
+    "/fxxk falling back to deterministic continuation after two empty model responses:",
     summarizeResponseShape(response),
     summarizeResponseShape(retryResponse),
   );
@@ -217,13 +217,13 @@ async function generatePromptWithLoader(ctx, sessionLabel, buildPrompt) {
   }
 
   const result = await ctx.ui.custom((tui, theme, _keybindings, done) => {
-    const loader = new BorderedLoader(tui, theme, `Composing the next /fuck prompt from ${sessionLabel}...`);
+    const loader = new BorderedLoader(tui, theme, `Composing the next /fxxk prompt from ${sessionLabel}...`);
     loader.onAbort = () => done({ prompt: null, error: null });
 
     buildPrompt(loader.signal)
       .then((prompt) => done({ prompt, error: null }))
       .catch((error) => {
-        console.error("/fuck generation failed:", error);
+        console.error("/fxxk generation failed:", error);
         done({ prompt: null, error: error instanceof Error ? error.message : String(error) });
       });
 
@@ -245,7 +245,7 @@ async function reviewPromptForStaging(ctx, prompt) {
     return prompt;
   }
 
-  const reviewedPrompt = await ctx.ui.editor("Review or copy the staged /fuck prompt", prompt);
+  const reviewedPrompt = await ctx.ui.editor("Review or copy the staged /fxxk prompt", prompt);
   if (reviewedPrompt === undefined) {
     return prompt;
   }
@@ -257,7 +257,7 @@ async function reviewPromptForStaging(ctx, prompt) {
 async function stageCurrentSessionPrompt(pi, ctx, goal) {
   const currentSessionInfo = getSessionInfo(ctx.sessionManager);
   if (!currentSessionInfo.path) {
-    ctx.ui.notify("/fuck staging requires a persisted session file.", "error");
+    ctx.ui.notify("/fxxk staging requires a persisted session file.", "error");
     return;
   }
 
@@ -272,49 +272,49 @@ async function stageCurrentSessionPrompt(pi, ctx, goal) {
   }
 
   if (!prompt) {
-    ctx.ui.notify("/fuck was cancelled.", "info");
+    ctx.ui.notify("/fxxk was cancelled.", "info");
     return;
   }
 
   const stagedPrompt = await reviewPromptForStaging(ctx, prompt);
   const latestPendingPrompt = getLatestPendingStagedPrompt(ctx.sessionManager.getBranch());
   if (latestPendingPrompt) {
-    pi.appendEntry(FUCK_STATE_CUSTOM_TYPE, createSupersededPrompt(latestPendingPrompt.promptId));
+    pi.appendEntry(FXXK_STATE_CUSTOM_TYPE, createSupersededPrompt(latestPendingPrompt.promptId));
   }
-  pi.appendEntry(FUCK_STATE_CUSTOM_TYPE, createStagedPrompt(stagedPrompt));
-  ctx.ui.notify("Staged a /fuck prompt. Run /new, then /fuck in the new session.", "info");
+  pi.appendEntry(FXXK_STATE_CUSTOM_TYPE, createStagedPrompt(stagedPrompt));
+  ctx.ui.notify("Staged a /fxxk prompt. Run /new, then /fxxk in the new session.", "info");
 }
 
 function clearSourceSessionLink(pi, sourceSessionFile) {
-  pi.appendEntry(FUCK_STATE_CUSTOM_TYPE, createSourceSessionLinkClear(sourceSessionFile));
+  pi.appendEntry(FXXK_STATE_CUSTOM_TYPE, createSourceSessionLinkClear(sourceSessionFile));
 }
 
 async function consumeStagedPrompt(pi, ctx, sourceState) {
   const { pendingPrompt, sourceSession, sourceSessionFile, sourceSessionInfo } = sourceState;
   if (!pendingPrompt || !sourceSession) {
-    ctx.ui.notify("The staged /fuck prompt could not be loaded.", "error");
+    ctx.ui.notify("The staged /fxxk prompt could not be loaded.", "error");
     return;
   }
 
   sendPrompt(pi, ctx, pendingPrompt.prompt);
   sourceSession.appendCustomEntry(
-    FUCK_STATE_CUSTOM_TYPE,
+    FXXK_STATE_CUSTOM_TYPE,
     createConsumedPrompt(pendingPrompt.promptId, ctx.sessionManager.getSessionFile() ?? `session:${ctx.sessionManager.getSessionId()}`),
   );
   clearSourceSessionLink(pi, sourceSessionFile);
-  ctx.ui.notify(`Sent the staged /fuck prompt from ${getSessionLabel(sourceSessionInfo)}`, "info");
+  ctx.ui.notify(`Sent the staged /fxxk prompt from ${getSessionLabel(sourceSessionInfo)}`, "info");
 }
 
-async function runFuck(pi, args, ctx) {
+async function runFxxk(pi, args, ctx) {
   if (!ctx.model) {
-    ctx.ui.notify("/fuck requires an active model.", "error");
+    ctx.ui.notify("/fxxk requires an active model.", "error");
     return;
   }
 
   const goal = args.trim();
   const { messages, hasSupportEntries } = getSessionMessagesAndSupportEntries(ctx.sessionManager);
   const sourceState = loadSourceSessionState(ctx);
-  const action = decideFuckAction({
+  const action = decideFxxkAction({
     hasCurrentSessionHistory: messages.length > 0 || hasSupportEntries,
     hasPendingStagedPrompt: Boolean(sourceState?.pendingPrompt),
   });
@@ -329,20 +329,20 @@ async function runFuck(pi, args, ctx) {
     return;
   }
 
-  ctx.ui.notify("No staged /fuck prompt found. Run /fuck in the previous session first.", "warning");
+  ctx.ui.notify("No staged /fxxk prompt found. Run /fxxk in the previous session first.", "warning");
 }
 
-export default function fuckExtension(pi) {
+export default function fxxkExtension(pi) {
   pi.on("session_start", async (event) => {
     if (event.reason === "new" && event.previousSessionFile) {
-      pi.appendEntry(FUCK_STATE_CUSTOM_TYPE, createSourceSessionLink(event.previousSessionFile));
+      pi.appendEntry(FXXK_STATE_CUSTOM_TYPE, createSourceSessionLink(event.previousSessionFile));
     }
   });
 
-  pi.registerCommand("fuck", {
+  pi.registerCommand("fxxk", {
     description: "Stage a handoff prompt in the current session, or consume a staged prompt in the next session",
     handler: async (args, ctx) => {
-      await runFuck(pi, args, ctx);
+      await runFxxk(pi, args, ctx);
     },
   });
 
@@ -356,8 +356,8 @@ export default function fuckExtension(pi) {
       return { action: "continue" };
     }
 
-    if (text === "fuck" || text.startsWith("fuck ")) {
-      await runFuck(pi, text === "fuck" ? "" : text.slice(4).trim(), ctx);
+    if (text === "fxxk" || text.startsWith("fxxk ")) {
+      await runFxxk(pi, text === "fxxk" ? "" : text.slice(4).trim(), ctx);
       return { action: "handled" };
     }
 

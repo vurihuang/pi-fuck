@@ -62,7 +62,7 @@ test("extractLatestHandoffPrompt ignores generic prompt discussions that do not 
   const messages = [
     {
       role: "user",
-      content: [{ type: "text", text: "Refactor /fuck so the current session stages a better prompt." }],
+      content: [{ type: "text", text: "Refactor /fxxk so the current session stages a better prompt." }],
     },
     {
       role: "assistant",

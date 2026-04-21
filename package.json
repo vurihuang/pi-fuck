@@ -1,12 +1,12 @@
 {
-  "name": "pi-fuck",
-  "version": "0.2.0",
+  "name": "pi-fxxk",
+  "version": "0.2.1",
   "type": "module",
-  "description": "Pi extension that turns /fuck into a two-stage handoff command.",
-  "main": "./fuck.js",
+  "description": "Pi extension that turns /fxxk into a two-stage handoff command.",
+  "main": "./fxxk.js",
   "keywords": ["pi-package"],
   "pi": {
-    "extensions": ["./fuck.js"]
+    "extensions": ["./fxxk.js"]
   },
   "peerDependencies": {
     "@mariozechner/pi-ai": "*",

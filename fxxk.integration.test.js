@@ -1,9 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { decideFuckAction } from "./fuck-core.js";
+import { decideFxxkAction } from "./fxxk-core.js";
 import {
-  FUCK_STATE_CUSTOM_TYPE,
+  FXXK_STATE_CUSTOM_TYPE,
   createConsumedPrompt,
   createStagedPrompt,
   createSupersededPrompt,
@@ -13,7 +13,7 @@ import {
 function customEntry(data) {
   return {
     type: "custom",
-    customType: FUCK_STATE_CUSTOM_TYPE,
+    customType: FXXK_STATE_CUSTOM_TYPE,
     data,
   };
 }
@@ -22,7 +22,7 @@ function resolveScenario({ hasCurrentSessionHistory, entries }) {
   const pendingPrompt = getLatestPendingStagedPrompt(entries);
   return {
     pendingPrompt,
-    action: decideFuckAction({
+    action: decideFxxkAction({
       hasCurrentSessionHistory,
       hasPendingStagedPrompt: Boolean(pendingPrompt),
     }),
@@ -57,7 +57,7 @@ test("case: fresh child session consumes the latest staged prompt", () => {
   assert.equal(scenario.action, "consume-staged-prompt");
 });
 
-test("case: multiple /fuck runs in the source session leave only the last prompt active", () => {
+test("case: multiple /fxxk runs in the source session leave only the last prompt active", () => {
   const firstPrompt = createStagedPrompt("first prompt");
   const secondPrompt = createStagedPrompt("second prompt");
   const thirdPrompt = createStagedPrompt("third prompt");
@@ -96,7 +96,7 @@ test("case: consuming the latest prompt does not revive older superseded prompts
   assert.equal(scenario.action, "warn-no-staged-prompt");
 });
 
-test("case: once the child session has its own history, /fuck stages the current session instead of consuming an old prompt", () => {
+test("case: once the child session has its own history, /fxxk stages the current session instead of consuming an old prompt", () => {
   const stagedPrompt = createStagedPrompt("latest prompt");
 
   const scenario = resolveScenario({

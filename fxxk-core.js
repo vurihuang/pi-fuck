@@ -197,7 +197,7 @@ function buildFallbackHandoff(sessionInfo, goal, cwd, workflowContext, evidence)
   return lines.join("\n");
 }
 
-export function decideFuckAction({
+export function decideFxxkAction({
   hasCurrentSessionHistory,
   hasPendingStagedPrompt,
 }) {

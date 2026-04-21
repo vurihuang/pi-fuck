@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  FUCK_STATE_CUSTOM_TYPE,
+  FXXK_STATE_CUSTOM_TYPE,
   createConsumedPrompt,
   createSourceSessionLink,
   createSourceSessionLinkClear,
@@ -15,7 +15,7 @@ import {
 function customEntry(data) {
   return {
     type: "custom",
-    customType: FUCK_STATE_CUSTOM_TYPE,
+    customType: FXXK_STATE_CUSTOM_TYPE,
     data,
   };
 }
@@ -56,7 +56,7 @@ test("getLatestPendingStagedPrompt returns the newest unconsumed staged prompt",
   assert.equal(pending?.prompt, "second prompt");
 });
 
-test("getLatestPendingStagedPrompt keeps only the last /fuck staging run active when older prompts are superseded", () => {
+test("getLatestPendingStagedPrompt keeps only the last /fxxk staging run active when older prompts are superseded", () => {
   const firstPrompt = createStagedPrompt("first prompt");
   const secondPrompt = createStagedPrompt("second prompt");
   const thirdPrompt = createStagedPrompt("third prompt");

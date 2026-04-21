@@ -1,11 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { buildHandoffPromptFromMessages, decideFuckAction } from "./fuck-core.js";
+import { buildHandoffPromptFromMessages, decideFxxkAction } from "./fxxk-core.js";
 
-test("decideFuckAction stages the current session when it has usable history", () => {
+test("decideFxxkAction stages the current session when it has usable history", () => {
   assert.equal(
-    decideFuckAction({
+    decideFxxkAction({
       hasCurrentSessionHistory: true,
       hasPendingStagedPrompt: false,
     }),
@@ -13,9 +13,9 @@ test("decideFuckAction stages the current session when it has usable history", (
   );
 });
 
-test("decideFuckAction consumes a staged prompt in a child session", () => {
+test("decideFxxkAction consumes a staged prompt in a child session", () => {
   assert.equal(
-    decideFuckAction({
+    decideFxxkAction({
       hasCurrentSessionHistory: false,
       hasPendingStagedPrompt: true,
     }),
@@ -23,9 +23,9 @@ test("decideFuckAction consumes a staged prompt in a child session", () => {
   );
 });
 
-test("decideFuckAction warns when there is no staged prompt to consume", () => {
+test("decideFxxkAction warns when there is no staged prompt to consume", () => {
   assert.equal(
-    decideFuckAction({
+    decideFxxkAction({
       hasCurrentSessionHistory: false,
       hasPendingStagedPrompt: false,
     }),
@@ -33,9 +33,9 @@ test("decideFuckAction warns when there is no staged prompt to consume", () => {
   );
 });
 
-test("decideFuckAction prioritizes staging the current session once the child session has its own history", () => {
+test("decideFxxkAction prioritizes staging the current session once the child session has its own history", () => {
   assert.equal(
-    decideFuckAction({
+    decideFxxkAction({
       hasCurrentSessionHistory: true,
       hasPendingStagedPrompt: true,
     }),
@@ -74,7 +74,7 @@ test("buildHandoffPromptFromMessages uses current-session evidence when generati
     messages: [
       {
         role: "user",
-        content: [{ type: "text", text: "Refactor the /fuck flow so the source session stages a prompt for /new." }],
+        content: [{ type: "text", text: "Refactor the /fxxk flow so the source session stages a prompt for /new." }],
       },
       {
         role: "assistant",
@@ -93,7 +93,7 @@ test("buildHandoffPromptFromMessages uses current-session evidence when generati
 
   assert.equal(prompt, "Stage this exact handoff prompt for the next session.");
   assert.match(receivedEvidenceBlock, /Goal: preserve end-to-end handoff verification/);
-  assert.match(receivedEvidenceBlock, /Refactor the \/fuck flow so the source session stages a prompt for \/new\./);
+  assert.match(receivedEvidenceBlock, /Refactor the \/fxxk flow so the source session stages a prompt for \/new\./);
 });
 
 test("buildHandoffPromptFromMessages falls back to deterministic continuation when completePrompt returns null", async () => {
