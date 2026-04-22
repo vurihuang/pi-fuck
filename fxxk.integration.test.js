@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { decideFxxkAction } from "./fxxk-core.js";
+import { decideFxxkAction, getConsumableStagedPrompt, hasMatchingSessionCwd } from "./fxxk-core.js";
 import {
   FXXK_STATE_CUSTOM_TYPE,
   createConsumedPrompt,
@@ -55,6 +55,70 @@ test("case: fresh child session consumes the latest staged prompt", () => {
   assert.equal(scenario.pendingPrompt?.promptId, secondPrompt.promptId);
   assert.equal(scenario.pendingPrompt?.prompt, "latest prompt");
   assert.equal(scenario.action, "consume-staged-prompt");
+});
+
+test("case: child session only consumes a staged prompt when source and current cwd match exactly", () => {
+  assert.equal(
+    hasMatchingSessionCwd({
+      sourceSessionCwd: "/tmp/project",
+      currentCwd: "/tmp/project",
+    }),
+    true,
+  );
+
+  assert.equal(
+    hasMatchingSessionCwd({
+      sourceSessionCwd: "/tmp/project",
+      currentCwd: "/tmp/project/other",
+    }),
+    false,
+  );
+
+  assert.equal(
+    hasMatchingSessionCwd({
+      sourceSessionCwd: "/tmp/project",
+      currentCwd: "/tmp/another-project",
+    }),
+    false,
+  );
+});
+
+test("case: different cwd blocks consumption even when a staged prompt exists", () => {
+  const olderPrompt = createStagedPrompt("older prompt");
+  const latestPrompt = createStagedPrompt("latest prompt");
+
+  const sameCwdPending = getConsumableStagedPrompt({
+    sourceSessionCwd: "/tmp/project",
+    currentCwd: "/tmp/project",
+    entries: [
+      customEntry(olderPrompt),
+      customEntry(createSupersededPrompt(olderPrompt.promptId)),
+      customEntry(latestPrompt),
+    ],
+  });
+
+  assert.equal(sameCwdPending?.promptId, latestPrompt.promptId);
+  assert.equal(sameCwdPending?.prompt, "latest prompt");
+
+  const differentCwdPending = getConsumableStagedPrompt({
+    sourceSessionCwd: "/tmp/project",
+    currentCwd: "/tmp/project-child",
+    entries: [
+      customEntry(olderPrompt),
+      customEntry(createSupersededPrompt(olderPrompt.promptId)),
+      customEntry(latestPrompt),
+    ],
+  });
+
+  assert.equal(differentCwdPending, null);
+
+  const scenario = resolveScenario({
+    hasCurrentSessionHistory: false,
+    entries: differentCwdPending ? [customEntry(differentCwdPending)] : [],
+  });
+
+  assert.equal(scenario.pendingPrompt, null);
+  assert.equal(scenario.action, "warn-no-staged-prompt");
 });
 
 test("case: multiple /fxxk runs in the source session leave only the last prompt active", () => {

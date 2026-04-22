@@ -43,6 +43,7 @@ In the source session, `/fxxk`:
 
 In the next session, `/fxxk`:
 - looks for the staged prompt linked from the source session
+- only consumes it when the new session is running in the exact same working directory as the source session
 - sends that exact prompt as the next user message
 - clears it after successful use
 
@@ -184,6 +185,7 @@ After `/new`, run:
 Typical result:
 
 - the extension finds the staged prompt linked from the source session
+- it only consumes it when the source session cwd exactly matches the current session cwd
 - it sends that exact prompt into the new session
 - it clears the staged prompt so it cannot be reused accidentally
 
@@ -198,7 +200,7 @@ If the source session never generated a staged prompt, `/fxxk` in the child sess
 
 - The slash command is `/fxxk`
 - Plain `fxxk` input is also intercepted and handled
-- `/fxxk` is session-aware: it stages in the source session, consumes in the child session, and warns on cache miss instead of falling back
+- `/fxxk` is session-aware: it stages in the source session, consumes in the child session only when both sessions use the exact same cwd, and warns on cache miss instead of falling back
 - Staged prompts are single-use and are cleared after successful consumption
 - If you run `/fxxk` multiple times in the source session, only the latest staged prompt remains active
 - `/fxxk` still prefers explicit workflow artifacts and compact recent evidence over summarizing an entire prior session when it has to synthesize a new prompt

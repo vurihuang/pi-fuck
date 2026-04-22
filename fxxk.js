@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { complete } from "@mariozechner/pi-ai";
 import { BorderedLoader, SessionManager } from "@mariozechner/pi-coding-agent";
 
-import { buildHandoffPromptFromMessages, decideFxxkAction } from "./fxxk-core.js";
+import { buildHandoffPromptFromMessages, decideFxxkAction, getConsumableStagedPrompt, hasMatchingSessionCwd } from "./fxxk-core.js";
 import {
   FXXK_STATE_CUSTOM_TYPE,
   createConsumedPrompt,
@@ -11,7 +11,6 @@ import {
   createSourceSessionLinkClear,
   createStagedPrompt,
   createSupersededPrompt,
-  getLatestPendingStagedPrompt,
   getLinkedSourceSessionFile,
 } from "./handoff-state.js";
 import { discoverWorkflowContext } from "./workflow-context.js";
@@ -194,12 +193,22 @@ function loadSourceSessionState(ctx) {
 
   try {
     const sourceSession = SessionManager.open(sourceSessionFile, ctx.sessionManager.getSessionDir());
-    const pendingPrompt = getLatestPendingStagedPrompt(sourceSession.getBranch());
+    const sourceSessionInfo = getSessionInfo(sourceSession, { path: sourceSessionFile });
+    const isSameCwd = hasMatchingSessionCwd({
+      sourceSessionCwd: sourceSessionInfo.cwd,
+      currentCwd: ctx.cwd,
+    });
+    const pendingPrompt = getConsumableStagedPrompt({
+      sourceSessionCwd: sourceSessionInfo.cwd,
+      currentCwd: ctx.cwd,
+      entries: sourceSession.getBranch(),
+    });
     return {
       sourceSessionFile,
       sourceSession,
-      sourceSessionInfo: getSessionInfo(sourceSession, { path: sourceSessionFile }),
+      sourceSessionInfo,
       pendingPrompt,
+      isSameCwd,
     };
   } catch {
     return {
@@ -207,6 +216,7 @@ function loadSourceSessionState(ctx) {
       sourceSession: null,
       sourceSessionInfo: null,
       pendingPrompt: null,
+      isSameCwd: false,
     };
   }
 }
@@ -290,7 +300,19 @@ function clearSourceSessionLink(pi, sourceSessionFile) {
 }
 
 async function consumeStagedPrompt(pi, ctx, sourceState) {
-  const { pendingPrompt, sourceSession, sourceSessionFile, sourceSessionInfo } = sourceState;
+  const {
+    pendingPrompt,
+    sourceSession,
+    sourceSessionFile,
+    sourceSessionInfo,
+    isSameCwd,
+  } = sourceState;
+  if (!isSameCwd) {
+    clearSourceSessionLink(pi, sourceSessionFile);
+    ctx.ui.notify("Refused to consume a staged /fxxk prompt from a different working directory.", "warning");
+    return;
+  }
+
   if (!pendingPrompt || !sourceSession) {
     ctx.ui.notify("The staged /fxxk prompt could not be loaded.", "error");
     return;
@@ -313,9 +335,17 @@ async function runFxxk(pi, args, ctx) {
 
   const goal = args.trim();
   const { messages, hasSupportEntries } = getSessionMessagesAndSupportEntries(ctx.sessionManager);
+  const hasCurrentSessionHistory = messages.length > 0 || hasSupportEntries;
   const sourceState = loadSourceSessionState(ctx);
+
+  if (!hasCurrentSessionHistory && sourceState?.sourceSessionFile && sourceState.isSameCwd === false) {
+    clearSourceSessionLink(pi, sourceState.sourceSessionFile);
+    ctx.ui.notify("Refused to consume a staged /fxxk prompt from a different working directory.", "warning");
+    return;
+  }
+
   const action = decideFxxkAction({
-    hasCurrentSessionHistory: messages.length > 0 || hasSupportEntries,
+    hasCurrentSessionHistory,
     hasPendingStagedPrompt: Boolean(sourceState?.pendingPrompt),
   });
 

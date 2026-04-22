@@ -1,3 +1,6 @@
+import { resolve } from "node:path";
+
+import { getLatestPendingStagedPrompt } from "./handoff-state.js";
 import { buildHandoffContract, renderHandoffContract } from "./handoff-contract.js";
 import { extractLatestHandoffPrompt, shouldPreferWorkflowTarget } from "./handoff-heuristics.js";
 import { buildSessionEvidence } from "./session-evidence.js";
@@ -217,6 +220,29 @@ function buildFallbackHandoff(sessionInfo, goal, cwd, workflowContext, evidence)
   });
 
   return renderHandoffContract(contract, { forceContractFormat: true });
+}
+
+export function hasMatchingSessionCwd({
+  sourceSessionCwd,
+  currentCwd,
+}) {
+  if (typeof sourceSessionCwd !== "string" || typeof currentCwd !== "string") {
+    return false;
+  }
+
+  return resolve(sourceSessionCwd) === resolve(currentCwd);
+}
+
+export function getConsumableStagedPrompt({
+  sourceSessionCwd,
+  currentCwd,
+  entries,
+}) {
+  if (!hasMatchingSessionCwd({ sourceSessionCwd, currentCwd })) {
+    return null;
+  }
+
+  return getLatestPendingStagedPrompt(entries);
 }
 
 export function decideFxxkAction({
